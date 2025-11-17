@@ -21,16 +21,60 @@ export const DatabaseSettings: React.FC = () => {
   const [isTesting, setIsTesting] = useState(false);
 
   useEffect(() => {
-    // Ladda sparad konfiguration från localStorage
-    const saved = localStorage.getItem('dbConfig');
-    if (saved) {
+    // Ladda konfiguration från API
+    const loadConfig = async () => {
       try {
-        const parsed = JSON.parse(saved);
-        setConfig(parsed);
-      } catch (e) {
-        console.error('Failed to load saved config', e);
+        const response = await fetch('/api/database/config');
+        const result = await response.json();
+        
+        if (result.provider && result.url) {
+          // Parse connection string för att fylla i formuläret
+          if (result.provider === 'sqlite') {
+            setConfig({
+              provider: 'sqlite',
+              url: result.url,
+            });
+          } else {
+            // För andra databaser, försök parse connection string
+            const url = new URL(result.url.replace(/^([^:]+):/, 'http:'));
+            setConfig({
+              provider: result.provider,
+              url: result.url,
+              host: url.hostname,
+              port: parseInt(url.port) || undefined,
+              database: url.pathname.replace('/', ''),
+              username: url.username || '',
+              password: url.password || '',
+            });
+          }
+        } else {
+          // Fallback till localStorage
+          const saved = localStorage.getItem('dbConfig');
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved);
+              setConfig(parsed);
+            } catch (e) {
+              console.error('Failed to load saved config', e);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load config from API', error);
+        // Fallback till localStorage
+        const saved = localStorage.getItem('dbConfig');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setConfig(parsed);
+          } catch (e) {
+            console.error('Failed to load saved config', e);
+          }
+        }
       }
-    }
+    };
+
+    loadConfig();
   }, []);
 
   const handleProviderChange = (provider: DatabaseConfig['provider']) => {
@@ -78,25 +122,61 @@ export const DatabaseSettings: React.FC = () => {
     return config.url || '';
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const connectionString = buildConnectionString();
-    const fullConfig = {
-      ...config,
-      url: connectionString,
-    };
+    
+    if (!connectionString) {
+      alert('Vänligen fyll i alla obligatoriska fält');
+      return;
+    }
 
-    // Spara till localStorage
-    localStorage.setItem('dbConfig', JSON.stringify(fullConfig));
+    setIsTesting(true);
+    setTestResult(null);
 
-    // Visa instruktioner för att uppdatera .env
-    alert(
-      `Konfiguration sparad!\n\n` +
-      `Uppdatera din .env fil med:\n` +
-      `DATABASE_URL="${connectionString}"\n\n` +
-      `Och uppdatera prisma/schema.prisma:\n` +
-      `provider = "${config.provider}"\n\n` +
-      `Kör sedan: npm run db:migrate`
-    );
+    try {
+      const response = await fetch('/api/database/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          connectionString,
+          provider: config.provider,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setTestResult({
+          success: true,
+          message: result.message || 'Databas konfigurerad och migrations körda automatiskt!',
+        });
+        
+        // Spara till localStorage
+        localStorage.setItem('dbConfig', JSON.stringify({
+          ...config,
+          url: connectionString,
+        }));
+
+        // Reload sidan för att ladda ny konfiguration
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        setTestResult({
+          success: false,
+          message: result.message || 'Fel vid konfiguration',
+        });
+      }
+    } catch (error) {
+      setTestResult({
+        success: false,
+        message: `Fel: ${error instanceof Error ? error.message : 'Kunde inte ansluta till server. Kontrollera att backend körs (npm run server)'}`,
+      });
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   const handleTest = async () => {
@@ -106,42 +186,55 @@ export const DatabaseSettings: React.FC = () => {
     try {
       const connectionString = buildConnectionString();
       
-      // Simulera test (i produktion skulle detta anropa en API)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Validera connection string
       if (!connectionString) {
         setTestResult({
           success: false,
           message: 'Vänligen fyll i alla obligatoriska fält',
         });
+        setIsTesting(false);
         return;
       }
 
-      if (config.provider === 'sqlite') {
-        setTestResult({
-          success: true,
-          message: 'SQLite-konfiguration ser korrekt ut',
-        });
-      } else {
-        // För andra databaser, kontrollera att alla fält är ifyllda
+      if (config.provider !== 'sqlite') {
         if (!config.host || !config.database || !config.username || !config.password) {
           setTestResult({
             success: false,
             message: 'Vänligen fyll i alla obligatoriska fält',
           });
+          setIsTesting(false);
           return;
         }
+      }
 
+      // Testa via API
+      const response = await fetch('/api/database/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          connectionString,
+          provider: config.provider,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
         setTestResult({
           success: true,
-          message: `Connection string genererad. Testa anslutningen genom att köra: npm run db:migrate`,
+          message: result.message || 'Anslutning testad och Prisma Client genererad!',
+        });
+      } else {
+        setTestResult({
+          success: false,
+          message: result.message || 'Test misslyckades',
         });
       }
     } catch (error) {
       setTestResult({
         success: false,
-        message: `Fel: ${error instanceof Error ? error.message : 'Okänt fel'}`,
+        message: `Fel: ${error instanceof Error ? error.message : 'Kunde inte ansluta till server. Kontrollera att backend körs (npm run server)'}`,
       });
     } finally {
       setIsTesting(false);
@@ -155,7 +248,7 @@ export const DatabaseSettings: React.FC = () => {
       <div className="settings-header">
         <h3>Databaskonfiguration</h3>
         <p className="settings-description">
-          Konfigurera databasanslutning. Ändringar kräver att du uppdaterar .env och kör migrations.
+          Konfigurera databasanslutning. Systemet hanterar allt automatiskt - inga .env-filer eller kommandon behövs!
         </p>
       </div>
 
@@ -293,20 +386,26 @@ export const DatabaseSettings: React.FC = () => {
             type="button"
             className="primary"
             onClick={handleSave}
+            disabled={isTesting}
           >
-            Spara konfiguration
+            {isTesting ? 'Sparar och konfigurerar...' : 'Spara och konfigurera automatiskt'}
           </button>
         </div>
 
         <div className="info-box">
-          <strong>Nästa steg efter spara:</strong>
-          <ol>
-            <li>Kopiera connection string ovan</li>
-            <li>Uppdatera <code>.env</code> med: <code>DATABASE_URL="..."</code></li>
-            <li>Uppdatera <code>prisma/schema.prisma</code> provider till: <code>{config.provider}</code></li>
-            <li>Kör: <code>npm run db:generate</code></li>
-            <li>Kör: <code>npm run db:migrate</code></li>
-          </ol>
+          <strong>✨ Automatisk konfiguration</strong>
+          <p style={{ marginTop: 'var(--spacing-xs)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+            När du klickar på "Spara konfiguration" kommer systemet automatiskt att:
+          </p>
+          <ul style={{ marginTop: 'var(--spacing-sm)', paddingLeft: 'var(--spacing-lg)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+            <li>Uppdatera .env filen</li>
+            <li>Uppdatera Prisma schema</li>
+            <li>Generera Prisma Client</li>
+            <li>Köra migrations</li>
+          </ul>
+          <p style={{ marginTop: 'var(--spacing-sm)', fontSize: '0.75rem', color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
+            ⚠️ Kontrollera att backend-servern körs (npm run server) för att detta ska fungera.
+          </p>
         </div>
       </div>
     </div>

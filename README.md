@@ -41,12 +41,23 @@ cd launch-planner
 npm install
 ```
 
-3. **Starta utvecklingsservern**
+3. **Starta både frontend och backend**
 ```bash
-npm run dev
+npm run dev:full
 ```
 
-Appen kommer att köras på `http://localhost:3000`
+Detta startar:
+- Frontend på `http://localhost:3000`
+- Backend API på `http://localhost:3001`
+
+**Alternativt, starta separat:**
+```bash
+# Terminal 1: Frontend
+npm run dev
+
+# Terminal 2: Backend
+npm run server
+```
 
 ### Bygga för produktion
 
