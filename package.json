@@ -1,0 +1,43 @@
+{
+  "name": "launch-planner-nordic-fmcg",
+  "version": "1.0.0",
+  "description": "Produktlanseringsplanerare för dagligvaruhandel i Norden - Microsoft Teams app",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --max-warnings 0",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "@microsoft/teams-js": "^2.19.0",
+    "@fluentui/react-components": "^9.47.0",
+    "date-fns": "^2.30.0",
+    "recharts": "^2.12.7",
+    "jspdf": "^2.5.2",
+    "xlsx": "^0.18.5",
+    "zustand": "^4.5.4",
+    "@prisma/client": "^6.19.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^9.15.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "globals": "^15.11.0",
+    "prisma": "^6.19.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.18.0",
+    "vite": "^5.4.8"
+  }
+}

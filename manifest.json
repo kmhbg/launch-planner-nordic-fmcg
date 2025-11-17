@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "YOUR_APP_ID_HERE",
+  "packageName": "com.launchplanner.nordicfmcg",
+  "developer": {
+    "name": "Launch Planner",
+    "websiteUrl": "https://your-domain.com",
+    "privacyUrl": "https://your-domain.com/privacy",
+    "termsOfUseUrl": "https://your-domain.com/terms"
+  },
+  "name": {
+    "short": "Launch Planner",
+    "full": "Launch Planner Nordic FMCG"
+  },
+  "description": {
+    "short": "Planera produktlanseringar i dagligvaruhandel",
+    "full": "En modern app för att planera och följa upp alla uppgifter som måste slutföras innan en produkt lanseras i dagligvaruhandeln i Norden. Baserat på ECR 16-veckorsprocess."
+  },
+  "icons": {
+    "outline": "icon-outline.png",
+    "color": "icon-color.png"
+  },
+  "accentColor": "#0066cc",
+  "staticTabs": [
+    {
+      "entityId": "launch-planner",
+      "name": "Launch Planner",
+      "contentUrl": "https://your-domain.com",
+      "websiteUrl": "https://your-domain.com",
+      "scopes": ["personal", "team"]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "your-domain.com"
+  ],
+  "webApplicationInfo": {
+    "id": "YOUR_AAD_APP_ID",
+    "resource": "api://your-domain.com/YOUR_AAD_APP_ID"
+  }
+}
+

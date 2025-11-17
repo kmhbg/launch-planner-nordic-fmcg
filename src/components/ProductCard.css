@@ -1,0 +1,157 @@
+.product-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.product-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.product-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.product-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.product-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.status-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.status-badge-auto {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-override {
+  padding: var(--spacing-xs) var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  font-size: 0.625rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  max-width: 60px;
+}
+
+.product-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.info-label {
+  color: var(--color-text-secondary);
+}
+
+.info-value {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.progress-text {
+  color: var(--color-text-secondary);
+}
+
+.progress-percentage {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--color-accent);
+  transition: width 0.3s ease;
+}
+
+.delete-button {
+  background: transparent;
+  border: none;
+  color: var(--color-danger);
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.delete-button:hover {
+  opacity: 1;
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: scale(1.1);
+}
+

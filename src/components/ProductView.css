@@ -1,0 +1,170 @@
+.product-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.product-view-empty {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-text-secondary);
+}
+
+.product-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.back-button {
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  padding: 0;
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.product-view-header h2 {
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.product-meta {
+  display: flex;
+  gap: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+}
+
+.product-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+button.danger {
+  background-color: var(--color-danger);
+  color: white;
+  border-color: var(--color-danger);
+}
+
+button.danger:hover {
+  background-color: #c82333;
+}
+
+.retailers-info {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.retailers-info h3 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 1rem;
+}
+
+.retailers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.retailer-info-card {
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.retailer-info-card strong {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
+}
+
+.retailer-weeks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.week-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.product-progress {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.progress-value {
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.progress-bar-large {
+  height: 12px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.progress-fill-large {
+  height: 100%;
+  background-color: var(--color-accent);
+  transition: width 0.3s ease;
+}
+
+.product-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.activities-section h3 {
+  margin-bottom: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+  .product-view-header {
+    flex-direction: column;
+  }
+
+  .product-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+

@@ -1,0 +1,169 @@
+// Prisma Schema för Launch Planner
+// Stödjer: SQLite, PostgreSQL, MySQL, SQL Server (Azure)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Ändra till "postgresql", "mysql", eller "sqlserver" för andra databaser
+  url      = env("DATABASE_URL")
+}
+
+// Roller
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserRole[]
+}
+
+// Användare
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  role          String   // 'admin' | 'user'
+  avatar        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assignedRoles UserRole[]
+  products      Product[]
+  comments      Comment[]
+}
+
+// Många-till-många relation mellan User och Role
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+// Mallar
+model Template {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  activities ActivityTemplate[]
+}
+
+// Aktivitetsdata för mallar
+model ActivityTemplate {
+  id                 String   @id @default(uuid())
+  templateId         String
+  name               String
+  description         String
+  weeksBeforeLaunch   Int      // Negativt tal, t.ex. -15
+  defaultAssigneeRole String?
+  category           String
+  required           Boolean  @default(true)
+  order              Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+}
+
+// Produkter
+model Product {
+  id                  String   @id @default(uuid())
+  gtin                String
+  name                String
+  productType         String   // 'launch' | 'delisting'
+  launchWeek          Int
+  launchYear          Int
+  launchDate          DateTime
+  category            String?
+  status              String   // 'draft' | 'active' | 'completed' | 'cancelled'
+  createdById         String
+  delistingRequestedBy String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  createdBy User        @relation(fields: [createdById], references: [id])
+  retailers RetailerLaunch[]
+  activities Activity[]
+
+  @@index([gtin])
+  @@index([status])
+  @@index([productType])
+  @@index([createdById])
+}
+
+// Kedjor och lanseringsveckor
+model RetailerLaunch {
+  id          String   @id @default(uuid())
+  productId   String
+  retailer    String   // ICA, Axfood, Coop, etc.
+  launchWeeks String   // JSON array som string: "[3,5,8]"
+  launchYear  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([retailer])
+}
+
+// Aktiviteter
+model Activity {
+  id          String   @id @default(uuid())
+  productId   String
+  templateId  String
+  name        String
+  description String
+  deadline    DateTime
+  deadlineWeek Int
+  status      String   // 'not_started' | 'in_progress' | 'completed'
+  assigneeId  String?
+  assigneeName String?
+  category    String
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@index([productId])
+  @@index([status])
+  @@index([deadline])
+}
+
+// Kommentarer
+model Comment {
+  id         String   @id @default(uuid())
+  activityId String
+  userId     String
+  userName   String
+  text       String
+  createdAt  DateTime @default(now())
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@index([activityId])
+  @@index([userId])
+}
+
