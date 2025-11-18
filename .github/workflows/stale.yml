@@ -1,0 +1,31 @@
+name: Mark Stale Issues and PRs
+
+on:
+  schedule:
+    # Kör varje dag kl 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: 'Detta issue har varit inaktivt i 60 dagar. Det kommer att stängas om inget händer inom 7 dagar.'
+          stale-pr-message: 'Denna PR har varit inaktiv i 30 dagar. Den kommer att stängas om inget händer inom 7 dagar.'
+          close-issue-message: 'Detta issue stängs på grund av inaktivitet.'
+          close-pr-message: 'Denna PR stängs på grund av inaktivitet.'
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          exempt-issue-labels: 'pinned,security'
+          exempt-pr-labels: 'pinned,security'
+          operations-per-run: 30
+

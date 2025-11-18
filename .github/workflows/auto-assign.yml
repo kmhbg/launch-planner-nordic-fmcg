@@ -1,0 +1,50 @@
+name: Auto Assign
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  auto-assign:
+    name: Auto Assign
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Auto assign issue
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Auto-assign baserat på labels eller filändringar
+            const labels = context.payload.issue.labels.map(l => l.name);
+            
+            // Assign baserat på labels
+            const assignees = [];
+            if (labels.includes('bug') || labels.includes('security')) {
+              assignees.push('kmhbg'); // Tech lead för buggar och säkerhet
+            }
+            
+            if (assignees.length > 0) {
+              github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                assignees: assignees
+              });
+            }
+
+      - name: Auto assign PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Auto-assign PR till code owners
+            github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.pull_request.number,
+              reviewers: ['kmhbg']
+            });
+

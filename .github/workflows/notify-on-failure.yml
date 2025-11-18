@@ -1,0 +1,28 @@
+name: Notify on Failure
+
+on:
+  workflow_run:
+    workflows: ["CI - Test & Build"]
+    types:
+      - completed
+
+jobs:
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    
+    steps:
+      - name: Notify team
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Skapa issue om CI failar
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 CI Failed: ${context.event.workflow_run.name}`,
+              body: `CI workflow failed. Check the [workflow run](${context.event.workflow_run.html_url}) for details.`,
+              labels: ['bug', 'ci']
+            });
+

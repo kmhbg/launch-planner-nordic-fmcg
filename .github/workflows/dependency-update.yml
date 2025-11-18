@@ -1,0 +1,33 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Kör varje måndag kl 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: Check for Updates
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Check for outdated packages
+        run: npm outdated || true
+
+      - name: Check outdated packages
+        run: |
+          echo "## Outdated Packages" >> $GITHUB_STEP_SUMMARY
+          npm outdated >> $GITHUB_STEP_SUMMARY || true
+          
+      # Dependabot hanteras automatiskt via .github/dependabot.yml
+

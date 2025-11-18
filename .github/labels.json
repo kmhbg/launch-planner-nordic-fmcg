@@ -1,0 +1,63 @@
+[
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Något fungerar inte"
+  },
+  {
+    "name": "enhancement",
+    "color": "a2eeef",
+    "description": "Ny funktion eller förbättring"
+  },
+  {
+    "name": "documentation",
+    "color": "0075ca",
+    "description": "Förbättringar eller tillägg till dokumentation"
+  },
+  {
+    "name": "dependencies",
+    "color": "0366d6",
+    "description": "Uppdateringar av dependencies"
+  },
+  {
+    "name": "good first issue",
+    "color": "7057ff",
+    "description": "Bra för nybörjare"
+  },
+  {
+    "name": "help wanted",
+    "color": "008672",
+    "description": "Extra hjälp behövs"
+  },
+  {
+    "name": "invalid",
+    "color": "e4e669",
+    "description": "Detta verkar inte relevant"
+  },
+  {
+    "name": "question",
+    "color": "d876e3",
+    "description": "Ytterligare information behövs"
+  },
+  {
+    "name": "wontfix",
+    "color": "ffffff",
+    "description": "Detta kommer inte att fixas"
+  },
+  {
+    "name": "ci",
+    "color": "f9d0c4",
+    "description": "CI/CD relaterat"
+  },
+  {
+    "name": "security",
+    "color": "b60205",
+    "description": "Säkerhetsrelaterat"
+  },
+  {
+    "name": "pinned",
+    "color": "0e8a16",
+    "description": "Viktigt issue/PR"
+  }
+]
+

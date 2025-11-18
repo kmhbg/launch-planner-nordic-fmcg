@@ -1,0 +1,23 @@
+name: Comment on PR
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  comment:
+    name: Add PR Comment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👋 Tack för din PR! Vi kommer att granska den så snart som möjligt.'
+            })
+

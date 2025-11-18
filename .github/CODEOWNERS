@@ -1,0 +1,21 @@
+# Code owners för Launch Planner
+# Se: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Alla filer
+* @kmhbg
+
+# Specifika områden
+/src/components/ @kmhbg
+/src/store/ @kmhbg
+/src/utils/ @kmhbg
+/server/ @kmhbg
+/prisma/ @kmhbg
+
+# Konfigurationsfiler
+package.json @kmhbg
+tsconfig.json @kmhbg
+vite.config.ts @kmhbg
+
+# GitHub workflows
+/.github/workflows/ @kmhbg
+
