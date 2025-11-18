@@ -25,6 +25,11 @@ export const DatabaseSettings: React.FC = () => {
     const loadConfig = async () => {
       try {
         const response = await fetch('/api/database/config');
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
         const result = await response.json();
         
         if (result.provider && result.url) {
@@ -61,7 +66,7 @@ export const DatabaseSettings: React.FC = () => {
         }
       } catch (error) {
         console.error('Failed to load config from API', error);
-        // Fallback till localStorage
+        // Fallback till localStorage om API inte är tillgängligt
         const saved = localStorage.getItem('dbConfig');
         if (saved) {
           try {
@@ -70,6 +75,13 @@ export const DatabaseSettings: React.FC = () => {
           } catch (e) {
             console.error('Failed to load saved config', e);
           }
+        }
+        // Visa varning om backend inte körs
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          setTestResult({
+            success: false,
+            message: 'Backend-servern körs inte. Starta med: npm run server eller npm run dev:full',
+          });
         }
       }
     };
@@ -145,6 +157,11 @@ export const DatabaseSettings: React.FC = () => {
         }),
       });
 
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Server error: ${response.status} - ${text || response.statusText}`);
+      }
+
       const result = await response.json();
 
       if (result.success) {
@@ -170,9 +187,19 @@ export const DatabaseSettings: React.FC = () => {
         });
       }
     } catch (error) {
+      let errorMessage = 'Okänt fel';
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = 'Kunde inte ansluta till server. Kontrollera att backend körs (npm run server eller npm run dev:full)';
+      } else if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        errorMessage = 'Server returnerade ogiltigt svar. Kontrollera att backend-servern körs på port 3001.';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       setTestResult({
         success: false,
-        message: `Fel: ${error instanceof Error ? error.message : 'Kunde inte ansluta till server. Kontrollera att backend körs (npm run server)'}`,
+        message: `Fel: ${errorMessage}`,
       });
     } finally {
       setIsTesting(false);
@@ -217,6 +244,11 @@ export const DatabaseSettings: React.FC = () => {
           provider: config.provider,
         }),
       });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Server error: ${response.status} - ${text || response.statusText}`);
+      }
 
       const result = await response.json();
 
@@ -395,7 +427,7 @@ export const DatabaseSettings: React.FC = () => {
         <div className="info-box">
           <strong>✨ Automatisk konfiguration</strong>
           <p style={{ marginTop: 'var(--spacing-xs)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-            När du klickar på "Spara konfiguration" kommer systemet automatiskt att:
+            När du klickar på "Spara och konfigurera automatiskt" kommer systemet automatiskt att:
           </p>
           <ul style={{ marginTop: 'var(--spacing-sm)', paddingLeft: 'var(--spacing-lg)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
             <li>Uppdatera .env filen</li>
@@ -403,9 +435,31 @@ export const DatabaseSettings: React.FC = () => {
             <li>Generera Prisma Client</li>
             <li>Köra migrations</li>
           </ul>
-          <p style={{ marginTop: 'var(--spacing-sm)', fontSize: '0.75rem', color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
-            ⚠️ Kontrollera att backend-servern körs (npm run server) för att detta ska fungera.
-          </p>
+          <div style={{ 
+            marginTop: 'var(--spacing-sm)', 
+            padding: 'var(--spacing-sm)', 
+            background: 'rgba(59, 130, 246, 0.1)', 
+            border: '1px solid rgba(59, 130, 246, 0.3)', 
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.875rem',
+            color: 'var(--color-text-primary)'
+          }}>
+            <strong>📌 Viktigt:</strong> Backend-servern måste köras för att detta ska fungera.
+            <br />
+            <code style={{ 
+              display: 'block', 
+              marginTop: 'var(--spacing-xs)', 
+              padding: 'var(--spacing-xs)', 
+              background: 'var(--color-bg-primary)',
+              borderRadius: 'var(--radius-sm)',
+              fontFamily: 'monospace'
+            }}>
+              npm run dev:full
+            </code>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+              (Detta startar både frontend och backend automatiskt)
+            </span>
+          </div>
         </div>
       </div>
     </div>

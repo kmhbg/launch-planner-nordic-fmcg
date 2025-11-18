@@ -63,6 +63,13 @@ app.post('/api/database/test', async (req, res) => {
   try {
     const { connectionString, provider } = req.body;
     
+    if (!connectionString || !provider) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Connection string och provider krävs' 
+      });
+    }
+    
     // Temporärt uppdatera .env
     const currentEnv = await readEnvFile();
     await writeEnvFile({ ...currentEnv, DATABASE_URL: connectionString });
@@ -72,7 +79,10 @@ app.post('/api/database/test', async (req, res) => {
     
     // Generera Prisma Client
     try {
-      await execAsync('npx prisma generate', { cwd: join(__dirname, '..') });
+      await execAsync('npx prisma generate', { 
+        cwd: join(__dirname, '..'),
+        env: { ...process.env, DATABASE_URL: connectionString }
+      });
       res.json({ success: true, message: 'Anslutning testad och Prisma Client genererad' });
     } catch (error) {
       res.status(400).json({ 
@@ -81,6 +91,7 @@ app.post('/api/database/test', async (req, res) => {
       });
     }
   } catch (error) {
+    console.error('Test error:', error);
     res.status(500).json({ 
       success: false, 
       message: `Fel: ${error.message}` 
@@ -93,6 +104,13 @@ app.post('/api/database/save', async (req, res) => {
   try {
     const { connectionString, provider } = req.body;
     
+    if (!connectionString || !provider) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Connection string och provider krävs' 
+      });
+    }
+    
     // Spara till .env
     await writeEnvFile({ DATABASE_URL: connectionString });
     
@@ -100,7 +118,17 @@ app.post('/api/database/save', async (req, res) => {
     await updatePrismaSchema(provider);
     
     // Generera Prisma Client
-    await execAsync('npx prisma generate', { cwd: join(__dirname, '..') });
+    try {
+      await execAsync('npx prisma generate', { 
+        cwd: join(__dirname, '..'),
+        env: { ...process.env, DATABASE_URL: connectionString }
+      });
+    } catch (genError) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Fel vid generering av Prisma Client: ${genError.message}` 
+      });
+    }
     
     // Kör migrations
     try {
@@ -117,7 +145,7 @@ app.post('/api/database/save', async (req, res) => {
     } catch (error) {
       // Om migrations failar, försök med db push istället (för utveckling)
       try {
-        const { stdout } = await execAsync('npx prisma db push', { 
+        const { stdout } = await execAsync('npx prisma db push --accept-data-loss', { 
           cwd: join(__dirname, '..'),
           env: { ...process.env, DATABASE_URL: connectionString }
         });
@@ -127,6 +155,7 @@ app.post('/api/database/save', async (req, res) => {
           output: stdout 
         });
       } catch (pushError) {
+        console.error('Migration error:', pushError);
         res.status(400).json({ 
           success: false, 
           message: `Migration misslyckades: ${pushError.message}` 
@@ -134,6 +163,7 @@ app.post('/api/database/save', async (req, res) => {
       }
     }
   } catch (error) {
+    console.error('Save error:', error);
     res.status(500).json({ 
       success: false, 
       message: `Fel: ${error.message}` 
