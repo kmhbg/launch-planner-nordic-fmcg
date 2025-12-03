@@ -1,5 +1,5 @@
 import { prisma, prismaToProduct, prismaToUser, prismaToRole, prismaToTemplate, prismaToActivity, prismaToComment } from '../lib/db';
-import { Product, Activity, User, Template, ActivityTemplate, RetailerLaunch, Role, Comment } from '../types';
+import { Product, Activity, User, Template, Role, Comment } from '../types';
 
 export class DatabaseService {
   // Products
@@ -101,7 +101,7 @@ export class DatabaseService {
     if (updates.status) updateData.status = updates.status;
     if (updates.delistingRequestedBy !== undefined) updateData.delistingRequestedBy = updates.delistingRequestedBy;
 
-    const product = await prisma.product.update({
+    await prisma.product.update({
       where: { id },
       data: updateData,
       include: {
@@ -245,7 +245,7 @@ export class DatabaseService {
     if (updates.role) updateData.role = updates.role;
     if (updates.avatar !== undefined) updateData.avatar = updates.avatar;
 
-    const user = await prisma.user.update({
+    await prisma.user.update({
       where: { id },
       data: updateData,
       include: {

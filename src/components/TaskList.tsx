@@ -6,24 +6,20 @@ import './TaskList.css';
 interface TaskListProps {
   activities: Activity[];
   users: User[];
-  currentUser: User | null;
   selectedActivityId: string | null;
   onSelectActivity: (id: string | null) => void;
   onStatusChange: (activityId: string, status: TaskStatus) => void;
   onAssigneeChange: (activityId: string, assigneeId: string) => void;
-  onAddComment: (activityId: string, text: string) => void;
   onExportICS: (activityId: string) => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
   activities,
   users,
-  currentUser,
   selectedActivityId,
   onSelectActivity,
   onStatusChange,
   onAssigneeChange,
-  onAddComment,
   onExportICS,
 }) => {
   const sortedActivities = [...activities].sort((a, b) => a.deadlineWeek - b.deadlineWeek);
@@ -32,12 +28,6 @@ export const TaskList: React.FC<TaskListProps> = ({
     not_started: 'var(--color-text-tertiary)',
     in_progress: 'var(--color-warning)',
     completed: 'var(--color-success)',
-  };
-
-  const statusLabels = {
-    not_started: 'Ej påbörjad',
-    in_progress: 'Pågående',
-    completed: 'Klart',
   };
 
   return (

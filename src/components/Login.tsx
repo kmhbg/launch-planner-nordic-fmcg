@@ -30,8 +30,9 @@ export const Login: React.FC = () => {
 
     try {
       await login(username, password, authMethod);
-    } catch (err: any) {
-      setError(err.message || 'Inloggning misslyckades');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Inloggning misslyckades';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

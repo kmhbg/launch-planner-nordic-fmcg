@@ -30,12 +30,14 @@ export const GS1Subscriptions: React.FC = () => {
         loadSubscriptions();
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (gs1Enabled) {
       loadSubscriptions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gs1Enabled]);
 
   const checkGS1Enabled = async () => {

@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/store';
+import { Product } from '../types';
 import './GS1Validation.css';
+
+interface TradeItem {
+  gtin?: string;
+  [key: string]: unknown;
+}
 
 interface ValidationResult {
   valid: boolean;
   errors: string[];
   warnings: string[];
   missingAttributes: string[];
-  tradeItem?: any;
+  tradeItem?: TradeItem;
 }
 
 export const GS1Validation: React.FC = () => {
@@ -85,7 +91,7 @@ export const GS1Validation: React.FC = () => {
     }
 
     setLoading(true);
-    const results: Array<{ product: any; result: ValidationResult }> = [];
+    const results: Array<{ product: Product; result: ValidationResult }> = [];
 
     for (const product of products) {
       try {

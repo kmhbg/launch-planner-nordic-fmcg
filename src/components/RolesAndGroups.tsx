@@ -152,9 +152,10 @@ export const RolesAndGroups: React.FC = () => {
         const error = await response.json();
         alert(error.error || 'Kunde inte skapa grupp');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Fel vid skapande av grupp:', error);
-      if (error.message && error.message.includes('JSON')) {
+      const errorMessage = error instanceof Error ? error.message : '';
+      if (errorMessage.includes('JSON')) {
         alert('Servern svarade inte korrekt. Kontrollera att backend-servern körs och har startats om.');
       } else {
         alert(`Ett fel uppstod: ${error.message || 'Okänt fel'}`);

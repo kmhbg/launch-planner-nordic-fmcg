@@ -34,6 +34,7 @@ export const ProductView: React.FC = () => {
         updateProduct(product.id, { status: autoStatus });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.activities, product?.id]);
 
   if (!product) {
@@ -218,12 +219,10 @@ export const ProductView: React.FC = () => {
           <TaskList
             activities={product.activities}
             users={users}
-            currentUser={currentUser}
             selectedActivityId={selectedActivityId}
             onSelectActivity={setSelectedActivityId}
             onStatusChange={handleStatusChange}
             onAssigneeChange={handleAssigneeChange}
-            onAddComment={handleAddComment}
             onExportICS={handleExportICS}
           />
         </div>

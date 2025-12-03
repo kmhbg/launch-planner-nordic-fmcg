@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useStore } from '../store';
-import { Product, User, RetailerLaunch } from '../../types';
+import { User, RetailerLaunch } from '../../types';
 
 describe('Store - Product Management', () => {
   beforeEach(() => {

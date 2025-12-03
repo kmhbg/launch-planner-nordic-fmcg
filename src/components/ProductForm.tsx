@@ -128,7 +128,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({ onClose, onSave }) => 
       productType: formData.productType,
       launchWeek: earliestWeek,
       launchYear: earliestYear,
-      launchDate,
       retailers: retailers.length > 0 ? retailers : undefined,
       category: formData.category || undefined,
       status: 'draft',

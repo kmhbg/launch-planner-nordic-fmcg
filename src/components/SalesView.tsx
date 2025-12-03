@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../store/store';
-import { formatWeekYear } from '../utils/timeline';
 import { Product, RetailerLaunch } from '../types';
 import './SalesView.css';
 

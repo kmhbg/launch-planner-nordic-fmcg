@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Product, Activity, User, Template, ActivityTemplate, RetailerLaunch, Role, Comment } from '../types';
+import { Product, Activity, User, Template, ActivityTemplate, Role, Comment } from '../types';
 
 // Singleton pattern för Prisma Client
 const globalForPrisma = globalThis as unknown as {
@@ -16,7 +16,27 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Helper functions för att konvertera mellan Prisma och app-typer
 
-export function prismaToProduct(prismaProduct: any): Product {
+interface PrismaProduct {
+  id: string;
+  gtin: string;
+  name: string;
+  productType: string;
+  launchWeek: number | null;
+  launchYear: number | null;
+  launchDate: Date | string;
+  category: string | null;
+  retailers?: Array<{
+    retailer: string;
+    launchWeeks: string;
+    launchYear: number;
+  }>;
+  status: string;
+  activities?: unknown[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export function prismaToProduct(prismaProduct: PrismaProduct): Product {
   return {
     id: prismaProduct.id,
     gtin: prismaProduct.gtin,
@@ -26,7 +46,7 @@ export function prismaToProduct(prismaProduct: any): Product {
     launchYear: prismaProduct.launchYear,
     launchDate: new Date(prismaProduct.launchDate),
     category: prismaProduct.category || undefined,
-    retailers: prismaProduct.retailers?.map((r: any) => ({
+    retailers: prismaProduct.retailers?.map((r: { retailer: string; launchWeeks: string; launchYear: number }) => ({
       retailer: r.retailer,
       launchWeeks: JSON.parse(r.launchWeeks),
       launchYear: r.launchYear,
