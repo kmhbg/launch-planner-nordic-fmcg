@@ -8,7 +8,6 @@ import { formatDate, formatWeekYear } from './timeline';
  */
 export function exportProductToPDF(product: Product): void {
   const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   let yPos = margin;
 

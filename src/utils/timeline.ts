@@ -9,7 +9,6 @@ export function getLaunchDate(year: number, week: number): Date {
   // Skapa ett datum för första dagen i veckan (måndag)
   const jan4 = new Date(year, 0, 4);
   const jan4Week = getWeek(jan4);
-  const daysToAdd = (week - jan4Week) * 7;
   const weekStart = addWeeks(jan4, week - jan4Week);
   return startOfWeek(weekStart, { weekStartsOn: 1 }); // Måndag som första dag
 }

@@ -77,16 +77,6 @@ export const ProductView: React.FC = () => {
     });
   };
 
-  const handleAddComment = (activityId: string, text: string) => {
-    if (!currentUser) return;
-    addComment(product.id, activityId, {
-      id: `comment-${Date.now()}`,
-      userId: currentUser.id,
-      userName: currentUser.name,
-      text,
-      createdAt: new Date(),
-    });
-  };
 
   const completedCount = product.activities.filter((a) => a.status === 'completed').length;
   const totalCount = product.activities.length;

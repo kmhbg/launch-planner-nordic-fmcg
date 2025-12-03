@@ -40,7 +40,7 @@ export function calculateProductStatus(product: Product): Product['status'] {
  */
 export function shouldUpdateProductStatus(
   oldStatus: Product['status'],
-  newStatus: Product['status']
+  _newStatus: Product['status']
 ): boolean {
   // Tillåt manuell ändring till 'cancelled', men annars använd automatisk status
   // Om användaren manuellt sätter till cancelled, behåll det

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { Product, Activity, User, Template, ActivityTemplate, RetailerLaunch, Role } from '../types';
+import { Product, Activity, User, Template, RetailerLaunch, Role } from '../types';
 import { generateActivities, DEFAULT_ECR_TEMPLATE, getLaunchDate } from '../utils/timeline';
 import { DELISTING_TEMPLATE } from '../utils/delisting-template';
 import { getWeek, getYear } from 'date-fns';
 import { calculateProductStatus } from '../utils/product-status';
-import { apiToProduct, apiToActivity, apiToComment } from '../utils/api-helpers';
+import { apiToProduct, apiToComment } from '../utils/api-helpers';
 
 interface AppState {
   // Data

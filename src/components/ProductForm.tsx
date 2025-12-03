@@ -120,8 +120,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({ onClose, onSave }) => 
       }));
     }
 
-    const launchDate = getLaunchDate(earliestYear, earliestWeek);
-    
     addProduct({
       gtin: formData.gtin,
       name: formData.name,

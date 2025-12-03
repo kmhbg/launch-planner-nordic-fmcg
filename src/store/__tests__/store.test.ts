@@ -12,7 +12,7 @@ describe('Store - Product Management', () => {
   });
 
   it('should add a new product', () => {
-    const { addProduct, products } = useStore.getState();
+    const { addProduct } = useStore.getState();
     
     const newProduct = {
       gtin: '7310865000000',

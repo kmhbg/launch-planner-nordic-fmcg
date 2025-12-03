@@ -25,6 +25,8 @@ interface PrismaProduct {
   launchYear: number | null;
   launchDate: Date | string;
   category: string | null;
+  createdById: string | null;
+  delistingRequestedBy: string | null;
   retailers?: Array<{
     retailer: string;
     launchWeeks: string;
@@ -36,14 +38,73 @@ interface PrismaProduct {
   updatedAt: Date | string;
 }
 
+interface PrismaActivity {
+  id: string;
+  templateId: string;
+  productId: string;
+  name: string;
+  description: string;
+  deadline: Date | string;
+  deadlineWeek: number;
+  status: string;
+  assigneeId: string | null;
+  assigneeName: string | null;
+  comments?: PrismaComment[];
+  category: string;
+  order: number;
+}
+
+interface PrismaComment {
+  id: string;
+  userId: string;
+  userName: string;
+  text: string;
+  createdAt: Date | string;
+}
+
+interface PrismaUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string | null;
+  assignedRoles?: Array<{ roleId: string }>;
+}
+
+interface PrismaRole {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string | null;
+}
+
+interface PrismaTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  isDefault: boolean;
+  activities?: PrismaActivityTemplate[];
+}
+
+interface PrismaActivityTemplate {
+  id: string;
+  name: string;
+  description: string;
+  weeksBeforeLaunch: number;
+  defaultAssigneeRole: string | null;
+  category: string;
+  required: boolean;
+  order: number;
+}
+
 export function prismaToProduct(prismaProduct: PrismaProduct): Product {
   return {
     id: prismaProduct.id,
     gtin: prismaProduct.gtin,
     name: prismaProduct.name,
     productType: prismaProduct.productType as 'launch' | 'delisting',
-    launchWeek: prismaProduct.launchWeek,
-    launchYear: prismaProduct.launchYear,
+    launchWeek: prismaProduct.launchWeek ?? 0,
+    launchYear: prismaProduct.launchYear ?? new Date().getFullYear(),
     launchDate: new Date(prismaProduct.launchDate),
     category: prismaProduct.category || undefined,
     retailers: prismaProduct.retailers?.map((r: { retailer: string; launchWeeks: string; launchYear: number }) => ({
@@ -60,7 +121,7 @@ export function prismaToProduct(prismaProduct: PrismaProduct): Product {
   };
 }
 
-export function prismaToActivity(prismaActivity: any): Activity {
+export function prismaToActivity(prismaActivity: PrismaActivity): Activity {
   return {
     id: prismaActivity.id,
     templateId: prismaActivity.templateId,
@@ -78,7 +139,7 @@ export function prismaToActivity(prismaActivity: any): Activity {
   };
 }
 
-export function prismaToComment(prismaComment: any): Comment {
+export function prismaToComment(prismaComment: PrismaComment): Comment {
   return {
     id: prismaComment.id,
     userId: prismaComment.userId,
@@ -90,18 +151,18 @@ export function prismaToComment(prismaComment: any): Comment {
   };
 }
 
-export function prismaToUser(prismaUser: any): User {
+export function prismaToUser(prismaUser: PrismaUser): User {
   return {
     id: prismaUser.id,
     name: prismaUser.name,
     email: prismaUser.email,
     role: prismaUser.role as User['role'],
     avatar: prismaUser.avatar || undefined,
-    assignedRoles: prismaUser.assignedRoles?.map((ur: any) => ur.roleId) || [],
+    assignedRoles: prismaUser.assignedRoles?.map((ur) => ur.roleId) || [],
   };
 }
 
-export function prismaToRole(prismaRole: any): Role {
+export function prismaToRole(prismaRole: PrismaRole): Role {
   return {
     id: prismaRole.id,
     name: prismaRole.name,
@@ -110,7 +171,7 @@ export function prismaToRole(prismaRole: any): Role {
   };
 }
 
-export function prismaToTemplate(prismaTemplate: any): Template {
+export function prismaToTemplate(prismaTemplate: PrismaTemplate): Template {
   return {
     id: prismaTemplate.id,
     name: prismaTemplate.name,
@@ -120,7 +181,7 @@ export function prismaToTemplate(prismaTemplate: any): Template {
   };
 }
 
-export function prismaToActivityTemplate(prismaTemplate: any): ActivityTemplate {
+export function prismaToActivityTemplate(prismaTemplate: PrismaActivityTemplate): ActivityTemplate {
   return {
     id: prismaTemplate.id,
     name: prismaTemplate.name,

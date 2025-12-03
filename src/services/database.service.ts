@@ -89,7 +89,7 @@ export class DatabaseService {
   }
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product> {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     
     if (updates.gtin) updateData.gtin = updates.gtin;
     if (updates.name) updateData.name = updates.name;
@@ -153,8 +153,8 @@ export class DatabaseService {
   }
 
   // Activities
-  async updateActivity(productId: string, activityId: string, updates: Partial<Activity>): Promise<Activity> {
-    const updateData: any = {};
+  async updateActivity(_productId: string, activityId: string, updates: Partial<Activity>): Promise<Activity> {
+    const updateData: Record<string, unknown> = {};
     if (updates.status) updateData.status = updates.status;
     if (updates.assigneeId !== undefined) updateData.assigneeId = updates.assigneeId;
     if (updates.assigneeName !== undefined) updateData.assigneeName = updates.assigneeName;
@@ -169,7 +169,7 @@ export class DatabaseService {
     return prismaToActivity(activity);
   }
 
-  async addComment(productId: string, activityId: string, comment: Comment): Promise<Comment> {
+  async addComment(_productId: string, activityId: string, comment: Comment): Promise<Comment> {
     const newComment = await prisma.comment.create({
       data: {
         activityId,
@@ -239,7 +239,7 @@ export class DatabaseService {
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User> {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (updates.name) updateData.name = updates.name;
     if (updates.email) updateData.email = updates.email;
     if (updates.role) updateData.role = updates.role;

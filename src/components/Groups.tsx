@@ -173,7 +173,8 @@ export const Groups: React.FC = () => {
       if (errorMessage.includes('JSON')) {
         alert('Servern svarade inte korrekt. Kontrollera att backend-servern körs och har startats om.');
       } else {
-        alert(`Ett fel uppstod: ${error.message || 'Okänt fel'}`);
+        const errorMessage = error instanceof Error ? error.message : 'Okänt fel';
+        alert(`Ett fel uppstod: ${errorMessage}`);
       }
     } finally {
       setLoading(false);
