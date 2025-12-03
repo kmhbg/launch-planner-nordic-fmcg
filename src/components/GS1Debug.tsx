@@ -4,15 +4,22 @@ import React, { useState } from 'react';
  * Debug-komponent för att testa GS1-integration
  * Visar detaljerad information om fel och konfiguration
  */
+interface DebugInfo {
+  timestamp: string;
+  config: unknown;
+  testConnection: unknown;
+  errors: string[];
+}
+
 export const GS1Debug: React.FC = () => {
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const [loading, setLoading] = useState(false);
 
   const runDebug = async () => {
     setLoading(true);
     setDebugInfo(null);
 
-    const info: any = {
+    const info: DebugInfo = {
       timestamp: new Date().toISOString(),
       config: null,
       testConnection: null,
@@ -30,8 +37,9 @@ export const GS1Debug: React.FC = () => {
         } else {
           info.errors.push(`Kunde inte ladda konfiguration: ${configResponse.status}`);
         }
-      } catch (error: any) {
-        info.errors.push(`Fel vid laddning av konfiguration: ${error.message}`);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Okänt fel';
+        info.errors.push(`Fel vid laddning av konfiguration: ${errorMessage}`);
       }
 
       // Test 2: Testa anslutning
@@ -47,14 +55,16 @@ export const GS1Debug: React.FC = () => {
             const errorData = await testResponse.json().catch(() => ({ error: 'Okänt fel' }));
             info.errors.push(`Test misslyckades: ${testResponse.status} - ${JSON.stringify(errorData)}`);
           }
-        } catch (error: any) {
-          info.errors.push(`Fel vid testning: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Okänt fel';
+          info.errors.push(`Fel vid testning: ${errorMessage}`);
         }
       }
 
       setDebugInfo(info);
-    } catch (error: any) {
-      info.errors.push(`Allmänt fel: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Okänt fel';
+      info.errors.push(`Allmänt fel: ${errorMessage}`);
       setDebugInfo(info);
     } finally {
       setLoading(false);

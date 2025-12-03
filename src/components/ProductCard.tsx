@@ -2,6 +2,7 @@ import React from 'react';
 import { Product } from '../types';
 import { formatWeekYear } from '../utils/timeline';
 import { useStore } from '../store/store';
+import { calculateProductStatus } from '../utils/product-status';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -72,7 +73,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
                     // Återställ till automatisk status
                     const currentProduct = useStore.getState().products.find(p => p.id === product.id);
                     if (currentProduct) {
-                      const { calculateProductStatus } = require('../utils/product-status');
                       const autoStatus = calculateProductStatus(currentProduct);
                       useStore.getState().updateProduct(product.id, { status: autoStatus });
                     }

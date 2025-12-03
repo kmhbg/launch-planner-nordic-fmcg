@@ -22,7 +22,6 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 describe('Database API Integration Tests (Frontend Perspective)', () => {
   let createdProductId: string | null = null;
   let createdActivityId: string | null = null;
-  let createdCommentId: string | null = null;
 
   beforeAll(async () => {
     // Kontrollera att backend-servern körs
@@ -31,7 +30,7 @@ describe('Database API Integration Tests (Frontend Perspective)', () => {
       if (!response.ok && response.status !== 200) {
         throw new Error('Backend-servern körs inte! Starta den med: npm run server');
       }
-    } catch (error) {
+    } catch {
       throw new Error('Kunde inte ansluta till backend-servern. Starta den med: npm run server');
     }
   });
@@ -282,7 +281,7 @@ describe('Database API Integration Tests (Frontend Perspective)', () => {
       expect(createdComment.text).toBe(comment.text);
       expect(createdComment.userName).toBe(comment.userName);
 
-      createdCommentId = createdComment.id;
+      // Comment created successfully
     });
 
     it('ska automatiskt skapa användare för kommentar om den inte finns', async () => {
@@ -372,7 +371,7 @@ describe('Database API Integration Tests (Frontend Perspective)', () => {
         await fetch(`${API_BASE_URL}/products/${createdProductId}`, {
           method: 'DELETE',
         });
-      } catch (error) {
+      } catch {
         // Ignorera fel vid cleanup
       }
     }

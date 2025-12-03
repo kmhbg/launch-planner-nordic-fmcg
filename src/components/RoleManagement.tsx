@@ -27,7 +27,6 @@ export const RoleManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadRoles();

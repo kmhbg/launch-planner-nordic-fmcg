@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/store';
-import { Product, RetailerLaunch } from '../types';
-import { getWeek, getYear } from 'date-fns';
+import { Product } from '../types';
 import { getLaunchDate } from '../utils/timeline';
 import { validateEAN13, formatGTIN } from '../utils/validation';
 import './ProductForm.css';
@@ -38,7 +37,7 @@ export const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClo
         setGtinError(validation.error || 'Ogiltig EAN-13');
       }
     }
-  }, []);
+  }, [formData.gtin]);
 
   const handleGtinChange = (value: string) => {
     setFormData({ ...formData, gtin: value });

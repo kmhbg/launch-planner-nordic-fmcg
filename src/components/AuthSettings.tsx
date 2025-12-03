@@ -10,21 +10,21 @@ interface AuthMethod {
 interface AuthConfig {
   enabled?: boolean;
   azure?: {
-    tenantId: string;
-    clientId: string;
-    clientSecret: string;
+    tenantId?: string;
+    clientId?: string;
+    clientSecret?: string;
   };
   ldap?: {
-    url: string;
-    baseDN: string;
-    username: string;
-    password: string;
+    url?: string;
+    baseDN?: string;
+    username?: string;
+    password?: string;
   };
   ad?: {
-    url: string;
-    baseDN: string;
-    username: string;
-    password: string;
+    url?: string;
+    baseDN?: string;
+    username?: string;
+    password?: string;
   };
 }
 
@@ -38,6 +38,7 @@ export const AuthSettings: React.FC = () => {
   useEffect(() => {
     loadMethods();
     loadConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadMethods = async () => {
@@ -103,6 +104,7 @@ export const AuthSettings: React.FC = () => {
 
   useEffect(() => {
     loadConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMethod]);
 
   const handleSave = async () => {
@@ -111,7 +113,12 @@ export const AuthSettings: React.FC = () => {
 
     try {
       // Strukturera konfigurationen korrekt för backend
-      const configToSave: any = {
+      const configToSave: {
+        enabled: boolean;
+        azure?: Partial<NonNullable<AuthConfig['azure']>>;
+        ldap?: Partial<NonNullable<AuthConfig['ldap']>>;
+        ad?: Partial<NonNullable<AuthConfig['ad']>>;
+      } = {
         enabled: config.enabled !== false, // Default till true om inte explicit satt till false
       };
 
@@ -143,8 +150,9 @@ export const AuthSettings: React.FC = () => {
         const error = await response.json();
         setMessage({ type: 'error', text: error.message || 'Kunde inte spara konfiguration' });
       }
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Ett fel uppstod' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Ett fel uppstod';
+      setMessage({ type: 'error', text: errorMessage });
     } finally {
       setSaving(false);
     }

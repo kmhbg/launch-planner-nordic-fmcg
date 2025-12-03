@@ -99,7 +99,7 @@ export const GS1Settings: React.FC = () => {
 
       const result = await response.json();
       setTestResult(result);
-    } catch (error) {
+    } catch {
       setTestResult({
         success: false,
         message: 'Ett fel uppstod vid testning',
