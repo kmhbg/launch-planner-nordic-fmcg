@@ -5,11 +5,11 @@ import './GS1Settings.css';
 interface GS1Config {
   enabled: boolean;
   clientId: string;
-  clientSecret: string;
+  clientSecret?: string;
   subscriptionKey: string;
   gln: string;
   apiUsername: string;
-  apiPassword: string;
+  apiPassword?: string;
 }
 
 export const GS1Settings: React.FC = () => {
@@ -21,7 +21,7 @@ export const GS1Settings: React.FC = () => {
     gln: '',
     apiUsername: '',
     apiPassword: '',
-  });
+  } as GS1Config);
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -109,7 +109,14 @@ export const GS1Settings: React.FC = () => {
     }
   };
 
-  const isConfigured = config.clientId && config.clientSecret && config.subscriptionKey && config.gln && config.apiUsername && config.apiPassword;
+  const isConfigured = Boolean(
+    config.clientId && 
+    config.clientSecret && 
+    config.subscriptionKey && 
+    config.gln && 
+    config.apiUsername && 
+    config.apiPassword
+  );
 
   return (
     <div className="gs1-settings">

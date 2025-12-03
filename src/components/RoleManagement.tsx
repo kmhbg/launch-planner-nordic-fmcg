@@ -113,7 +113,13 @@ export const RoleManagement: React.FC = () => {
       });
 
       if (response.ok) {
-        await loadRoleDetails(roleId);
+        await loadRoles();
+        if (selectedRole?.id === roleId) {
+          const updatedRole = await fetch(`/api/roles/${roleId}`, {
+            credentials: 'include',
+          }).then(r => r.json());
+          setSelectedRole(updatedRole);
+        }
       } else {
         const error = await response.json();
         alert(error.error || 'Kunde inte ta bort roll');
@@ -136,7 +142,13 @@ export const RoleManagement: React.FC = () => {
       });
 
       if (response.ok) {
-        await loadRoleDetails(roleId);
+        await loadRoles();
+        if (selectedRole?.id === roleId) {
+          const updatedRole = await fetch(`/api/roles/${roleId}`, {
+            credentials: 'include',
+          }).then(r => r.json());
+          setSelectedRole(updatedRole);
+        }
       } else {
         const error = await response.json();
         alert(error.error || 'Kunde inte tilldela roll till grupp');
@@ -155,7 +167,13 @@ export const RoleManagement: React.FC = () => {
       });
 
       if (response.ok) {
-        await loadRoleDetails(roleId);
+        await loadRoles();
+        if (selectedRole?.id === roleId) {
+          const updatedRole = await fetch(`/api/roles/${roleId}`, {
+            credentials: 'include',
+          }).then(r => r.json());
+          setSelectedRole(updatedRole);
+        }
       } else {
         const error = await response.json();
         alert(error.error || 'Kunde inte ta bort roll från grupp');

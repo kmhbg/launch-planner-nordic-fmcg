@@ -43,7 +43,7 @@ export const GS1Debug: React.FC = () => {
       }
 
       // Test 2: Testa anslutning
-      if (info.config && info.config.enabled) {
+      if (info.config && typeof info.config === 'object' && 'enabled' in info.config && info.config.enabled) {
         try {
           const testResponse = await fetch('/api/gs1/test', {
             method: 'POST',
