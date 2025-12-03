@@ -32,6 +32,10 @@ yarn-error.log*
 # Prisma
 /prisma/migrations
 
+# Configuration files with sensitive data
+gs1-config.json
+auth-config.json
+
 # IDE
 .vscode
 .idea
