@@ -23,34 +23,63 @@ export const DatabaseSettings: React.FC = () => {
   useEffect(() => {
     // Ladda konfiguration från API
     const loadConfig = async () => {
+      console.log('📥 [DatabaseSettings] Laddar konfiguration från API...');
       try {
         const response = await fetch('/api/database/config');
+        console.log('📥 [DatabaseSettings] Config response status:', response.status);
         
         if (!response.ok) {
           throw new Error(`Server error: ${response.status}`);
         }
         
-        const result = await response.json();
-        
-        if (result.provider && result.url) {
-          // Parse connection string för att fylla i formuläret
-          if (result.provider === 'sqlite') {
+            const result = await response.json();
+            console.log('📥 [DatabaseSettings] Config result:', result);
+
+            if (result.provider && result.url) {
+              console.log('📥 [DatabaseSettings] Parsar connection string för provider:', result.provider);
+              // Parse connection string för att fylla i formuläret
+              if (result.provider === 'sqlite') {
+                console.log('📥 [DatabaseSettings] SQLite konfiguration');
             setConfig({
               provider: 'sqlite',
               url: result.url,
             });
           } else {
             // För andra databaser, försök parse connection string
-            const url = new URL(result.url.replace(/^([^:]+):/, 'http:'));
-            setConfig({
-              provider: result.provider,
-              url: result.url,
-              host: url.hostname,
-              port: parseInt(url.port) || undefined,
-              database: url.pathname.replace('/', ''),
-              username: url.username || '',
-              password: url.password || '',
-            });
+            try {
+              // För PostgreSQL: postgresql://user:pass@host:port/db
+              const match = result.url.match(/^postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)/);
+              if (match) {
+                setConfig({
+                  provider: result.provider,
+                  url: result.url,
+                  host: match[3],
+                  port: parseInt(match[4]) || undefined,
+                  database: match[5],
+                  username: decodeURIComponent(match[1]),
+                  password: decodeURIComponent(match[2]),
+                });
+              } else {
+                // Fallback till URL parsing
+                const url = new URL(result.url.replace(/^([^:]+):/, 'http:'));
+                setConfig({
+                  provider: result.provider,
+                  url: result.url,
+                  host: url.hostname,
+                  port: parseInt(url.port) || undefined,
+                  database: url.pathname.replace('/', '').split('?')[0],
+                  username: decodeURIComponent(url.username || ''),
+                  password: decodeURIComponent(url.password || ''),
+                });
+              }
+            } catch (e) {
+              console.error('Failed to parse connection string', e);
+              // Behåll bara URL om parsing failar
+              setConfig({
+                provider: result.provider,
+                url: result.url,
+              });
+            }
           }
         } else {
           // Fallback till localStorage
@@ -77,10 +106,10 @@ export const DatabaseSettings: React.FC = () => {
           }
         }
         // Visa varning om backend inte körs
-        if (error instanceof TypeError && error.message.includes('fetch')) {
+        if (error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
           setTestResult({
             success: false,
-            message: 'Backend-servern körs inte. Starta med: npm run server eller npm run dev:full',
+            message: 'Backend-servern körs inte eller är inte tillgänglig. Kontrollera att backend körs (npm run server eller npm run dev:full)',
           });
         }
       }
@@ -101,7 +130,7 @@ export const DatabaseSettings: React.FC = () => {
     };
 
     if (provider === 'sqlite') {
-      newConfig.url = 'file:./dev.db';
+      newConfig.url = 'file:./prisma/dev.db';
     }
 
     setConfig(newConfig);
@@ -110,82 +139,115 @@ export const DatabaseSettings: React.FC = () => {
 
   const buildConnectionString = (): string => {
     if (config.provider === 'sqlite') {
-      return config.url;
+      return config.url || 'file:./prisma/dev.db';
     }
 
-    if (config.provider === 'postgresql') {
-      if (config.username && config.password && config.host && config.database) {
-        return `postgresql://${config.username}:${config.password}@${config.host}:${config.port || 5432}/${config.database}?schema=public`;
-      }
+    if (!config.host || !config.database || !config.username || !config.password) {
+      return ''; // Return empty if essential fields are missing
     }
 
-    if (config.provider === 'mysql') {
-      if (config.username && config.password && config.host && config.database) {
-        return `mysql://${config.username}:${config.password}@${config.host}:${config.port || 3306}/${config.database}`;
-      }
-    }
+    // URL-encode username och password för att hantera specialtecken (@, :, /, !, etc.)
+    const encodedUsername = encodeURIComponent(config.username);
+    const encodedPassword = encodeURIComponent(config.password);
 
-    if (config.provider === 'sqlserver') {
-      if (config.username && config.password && config.host && config.database) {
-        return `sqlserver://${config.host}:${config.port || 1433};database=${config.database};user=${config.username};password=${config.password};encrypt=true`;
-      }
+    switch (config.provider) {
+      case 'postgresql':
+        return `postgresql://${encodedUsername}:${encodedPassword}@${config.host}:${config.port || 5432}/${config.database}?schema=public`;
+      case 'mysql':
+        return `mysql://${encodedUsername}:${encodedPassword}@${config.host}:${config.port || 3306}/${config.database}`;
+      case 'sqlserver':
+        return `sqlserver://${config.host}:${config.port || 1433};database=${config.database};user=${encodedUsername};password=${encodedPassword};encrypt=true;trustServerCertificate=true`;
+      default:
+        return '';
     }
-
-    return config.url || '';
   };
 
   const handleSave = async () => {
+    console.log('🔧 [DatabaseSettings] handleSave startar...');
     const connectionString = buildConnectionString();
+    console.log('🔧 [DatabaseSettings] Connection string byggd:', connectionString ? `${connectionString.substring(0, 50)}...` : 'TOM');
+    console.log('🔧 [DatabaseSettings] Provider:', config.provider);
+    console.log('🔧 [DatabaseSettings] Config:', {
+      provider: config.provider,
+      host: config.host,
+      port: config.port,
+      database: config.database,
+      username: config.username ? `${config.username.substring(0, 10)}...` : 'TOM',
+      password: config.password ? '***' : 'TOM',
+    });
     
     if (!connectionString) {
+      console.error('❌ [DatabaseSettings] Connection string saknas!');
       alert('Vänligen fyll i alla obligatoriska fält');
       return;
     }
 
     setIsTesting(true);
     setTestResult(null);
+    console.log('🔧 [DatabaseSettings] Skickar request till /api/database/save...');
 
     try {
-      const response = await fetch('/api/database/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          connectionString,
-          provider: config.provider,
-        }),
-      });
+      let response;
+      try {
+        console.log('🔧 [DatabaseSettings] Fetch startar...');
+        response = await fetch('/api/database/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            connectionString,
+            provider: config.provider,
+          }),
+        });
+        console.log('🔧 [DatabaseSettings] Fetch response status:', response.status);
+      } catch (fetchError) {
+        console.error('❌ [DatabaseSettings] Fetch error:', fetchError);
+        throw new Error(`Kunde inte ansluta till server: ${fetchError instanceof Error ? fetchError.message : 'Okänt fel'}. Kontrollera att backend körs (npm run server eller npm run dev:full)`);
+      }
 
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Server error: ${response.status} - ${text || response.statusText}`);
+        let errorMessage = `Server error: ${response.status}`;
+        try {
+          const errorJson = JSON.parse(text);
+          errorMessage = errorJson.message || errorMessage;
+        } catch {
+          errorMessage = text || response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
+          const result = await response.json();
+          console.log('🔧 [DatabaseSettings] Server response:', result);
 
-      if (result.success) {
-        setTestResult({
-          success: true,
-          message: result.message || 'Databas konfigurerad och migrations körda automatiskt!',
-        });
-        
-        // Spara till localStorage
-        localStorage.setItem('dbConfig', JSON.stringify({
-          ...config,
-          url: connectionString,
-        }));
+          if (result.success) {
+            console.log('✅ [DatabaseSettings] Konfiguration lyckades!');
+            console.log('🔧 [DatabaseSettings] Sparar till localStorage...');
+            setTestResult({
+              success: true,
+              message: result.message || 'Databas konfigurerad och migrations körda automatiskt!',
+            });
+            
+            // Spara till localStorage
+            localStorage.setItem('dbConfig', JSON.stringify({
+              ...config,
+              url: connectionString,
+            }));
+            console.log('✅ [DatabaseSettings] Sparat till localStorage');
 
-        // Reload sidan för att ladda ny konfiguration
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        setTestResult({
-          success: false,
-          message: result.message || 'Fel vid konfiguration',
-        });
-      }
+            // Reload sidan för att ladda ny konfiguration
+            console.log('🔧 [DatabaseSettings] Reloadar sida om 2 sekunder...');
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } else {
+            console.error('❌ [DatabaseSettings] Konfiguration misslyckades:', result.message);
+            setTestResult({
+              success: false,
+              message: result.message || 'Fel vid konfiguration',
+            });
+          }
     } catch (error) {
       let errorMessage = 'Okänt fel';
       
@@ -207,13 +269,17 @@ export const DatabaseSettings: React.FC = () => {
   };
 
   const handleTest = async () => {
+    console.log('🧪 [DatabaseSettings] handleTest startar...');
     setIsTesting(true);
     setTestResult(null);
 
     try {
       const connectionString = buildConnectionString();
+      console.log('🧪 [DatabaseSettings] Connection string byggd:', connectionString ? `${connectionString.substring(0, 50)}...` : 'TOM');
+      console.log('🧪 [DatabaseSettings] Provider:', config.provider);
       
       if (!connectionString) {
+        console.error('❌ [DatabaseSettings] Connection string saknas!');
         setTestResult({
           success: false,
           message: 'Vänligen fyll i alla obligatoriska fält',
@@ -224,6 +290,7 @@ export const DatabaseSettings: React.FC = () => {
 
       if (config.provider !== 'sqlite') {
         if (!config.host || !config.database || !config.username || !config.password) {
+          console.error('❌ [DatabaseSettings] Obligatoriska fält saknas för', config.provider);
           setTestResult({
             success: false,
             message: 'Vänligen fyll i alla obligatoriska fält',
@@ -234,35 +301,53 @@ export const DatabaseSettings: React.FC = () => {
       }
 
       // Testa via API
-      const response = await fetch('/api/database/test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          connectionString,
-          provider: config.provider,
-        }),
-      });
+      console.log('🧪 [DatabaseSettings] Skickar test request till /api/database/test...');
+      let response;
+      try {
+        response = await fetch('/api/database/test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            connectionString,
+            provider: config.provider,
+          }),
+        });
+        console.log('🧪 [DatabaseSettings] Test response status:', response.status);
+      } catch (fetchError) {
+        console.error('❌ [DatabaseSettings] Fetch error:', fetchError);
+        throw new Error(`Kunde inte ansluta till server: ${fetchError instanceof Error ? fetchError.message : 'Okänt fel'}. Kontrollera att backend körs (npm run server eller npm run dev:full)`);
+      }
 
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Server error: ${response.status} - ${text || response.statusText}`);
+        let errorMessage = `Server error: ${response.status}`;
+        try {
+          const errorJson = JSON.parse(text);
+          errorMessage = errorJson.message || errorMessage;
+        } catch {
+          errorMessage = text || response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
+          const result = await response.json();
+          console.log('🧪 [DatabaseSettings] Test result:', result);
 
-      if (result.success) {
-        setTestResult({
-          success: true,
-          message: result.message || 'Anslutning testad och Prisma Client genererad!',
-        });
-      } else {
-        setTestResult({
-          success: false,
-          message: result.message || 'Test misslyckades',
-        });
-      }
+          if (result.success) {
+            console.log('✅ [DatabaseSettings] Test lyckades!');
+            setTestResult({
+              success: true,
+              message: result.message || 'Anslutning testad och Prisma Client genererad!',
+            });
+          } else {
+            console.error('❌ [DatabaseSettings] Test misslyckades:', result.message);
+            setTestResult({
+              success: false,
+              message: result.message || 'Test misslyckades',
+            });
+          }
     } catch (error) {
       setTestResult({
         success: false,

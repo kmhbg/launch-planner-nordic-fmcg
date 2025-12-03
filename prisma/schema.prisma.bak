@@ -19,8 +19,7 @@ model Role {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  users      UserRole[]
-  groupRoles GroupRole[]
+  users UserRole[]
 }
 
 // Användare
@@ -28,37 +27,14 @@ model User {
   id            String   @id @default(uuid())
   name          String
   email         String   @unique
-  password      String?  // Hashat lösenord (null för SSO-användare)
   role          String   // 'admin' | 'user'
   avatar        String?
-  authMethod    String   @default("local") // 'local' | 'azure' | 'ldap' | 'ad'
-  lastLogin     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   assignedRoles UserRole[]
-  groupMembers  GroupMember[]
   products      Product[]
   comments      Comment[]
-}
-
-// Grupper (kan vara lokala eller från externa system)
-model Group {
-  id          String   @id @default(uuid())
-  name        String   @unique // Unikt namn för alla grupper
-  displayName String?
-  description String?
-  source      String   @default("local") // 'local' | 'azure' | 'ldap' | 'ad'
-  externalId  String?  // ID från externt system (Azure AD Object ID, LDAP DN, etc.)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  members     GroupMember[]
-  groupRoles  GroupRole[]
-
-  @@unique([source, externalId], name: "source_externalId")
-  @@index([source])
-  @@index([name])
 }
 
 // Många-till-många relation mellan User och Role
@@ -74,38 +50,6 @@ model UserRole {
 
   @@unique([userId, roleId])
   @@index([userId])
-  @@index([roleId])
-}
-
-// Många-till-många relation mellan User och Group
-model GroupMember {
-  id      String @id @default(uuid())
-  userId  String
-  groupId String
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([userId, groupId])
-  @@index([userId])
-  @@index([groupId])
-}
-
-// Många-till-många relation mellan Group och Role
-model GroupRole {
-  id      String @id @default(uuid())
-  groupId String
-  roleId  String
-
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  role  Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([groupId, roleId])
-  @@index([groupId])
   @@index([roleId])
 }
 

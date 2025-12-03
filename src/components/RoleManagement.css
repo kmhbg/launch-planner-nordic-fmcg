@@ -1,0 +1,146 @@
+.role-management {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.role-management-header {
+  margin-bottom: var(--spacing-md);
+}
+
+.role-management-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+.roles-list-section h4,
+.role-details-section h4 {
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.role-card {
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.role-card.selected {
+  border-color: var(--color-accent);
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.role-card-header h5 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.role-card-description {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: var(--spacing-xs) 0;
+}
+
+.role-card-stats {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-sm);
+}
+
+.role-details-section {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+
+.role-description {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.role-assignments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.assignment-section {
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.assignment-section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.assignment-section h5 {
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.assignment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.assignment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.add-assignment-select {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+}
+
+.btn-danger,
+.btn-small {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.btn-danger {
+  background: #f44336;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #d32f2f;
+}
+
+@media (max-width: 1024px) {
+  .role-management-content {
+    grid-template-columns: 1fr;
+  }
+}
+

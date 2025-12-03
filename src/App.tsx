@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Layout } from './components/Layout';
+import { Login } from './components/Login';
 import { Dashboard } from './components/Dashboard';
 import { ProductView } from './components/ProductView';
 import { TimelineView } from './components/TimelineView';
@@ -8,53 +9,28 @@ import { SalesView } from './components/SalesView';
 import { useStore } from './store/store';
 
 function App() {
-  const { viewMode, setCurrentUser, currentUser } = useStore();
+  const { viewMode, currentUser, isAuthenticated, checkAuth, loadProducts, isLoading } = useStore();
 
   useEffect(() => {
-    // Set default user for development (will be overridden if Teams is available)
-    if (!currentUser) {
-      setCurrentUser({
-        id: 'dev-user',
-        name: 'Utvecklare',
-        email: 'dev@example.com',
-        role: 'admin',
-      });
-    }
-
-    // Try to initialize Microsoft Teams SDK (only if available)
-    if (typeof window !== 'undefined' && (window as any).microsoftTeams) {
-      try {
-        const microsoftTeams = (window as any).microsoftTeams;
-        microsoftTeams.app.initialize().then(() => {
-          microsoftTeams.app.getContext().then((context: any) => {
-            if (context?.user) {
-              setCurrentUser({
-                id: context.user.id || 'unknown',
-                name: context.user.displayName || 'Användare',
-                email: context.user.userPrincipalName || '',
-                role: context.user.isMeetingOrganizer ? 'admin' : 'user',
-              });
-            }
-          }).catch(() => {
-            // Silently fail - already have default user
-          });
-        }).catch(() => {
-          // Silently fail - already have default user
-        });
-      } catch (error) {
-        // Silently fail - already have default user
-        console.log('Teams SDK not available, running in standalone mode');
-      }
-    }
+    // Kontrollera om användaren är inloggad vid startup
+    checkAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    // Ladda produkter när användaren är inloggad
+    if (isAuthenticated && currentUser) {
+      loadProducts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, currentUser]);
+
   // Ensure viewMode is set
   useEffect(() => {
-    if (!viewMode) {
+    if (!viewMode && isAuthenticated) {
       useStore.getState().setViewMode('dashboard');
     }
-  }, [viewMode]);
+  }, [viewMode, isAuthenticated]);
 
   const renderView = () => {
     switch (viewMode) {
@@ -73,8 +49,13 @@ function App() {
     }
   };
 
-  // Show loading state if no user is set yet
-  if (!currentUser) {
+  // Visa login om användaren inte är inloggad
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  // Visa loading state medan produkter laddas första gången
+  if (isLoading && !currentUser) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
         <p>Laddar...</p>

@@ -7,7 +7,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { viewMode, setViewMode, currentUser } = useStore();
+  const { viewMode, setViewMode, currentUser, logout } = useStore();
 
   return (
     <div className="layout">
@@ -51,6 +51,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               {currentUser.role === 'admin' && (
                 <span className="badge info">Admin</span>
               )}
+              <button
+                className="logout-button"
+                onClick={logout}
+                title="Logga ut"
+              >
+                Logga ut
+              </button>
             </div>
           )}
         </div>

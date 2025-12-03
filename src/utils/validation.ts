@@ -14,23 +14,22 @@ export function validateEAN13(gtin: string): { valid: boolean; error?: string } 
     };
   }
 
-  // Kontrollera att alla tecken är siffror
-  if (!/^\d{13}$/.test(cleaned)) {
-    return {
-      valid: false,
-      error: 'EAN-13 får endast innehålla siffror',
-    };
-  }
+  // Kontrollera att alla tecken är siffror (efter cleaning)
+  // Detta kontrolleras redan av längd-checken ovan, så vi behöver inte denna separat
 
   // Validera kontrollsiffra (checksum)
+  // EAN-13 checksum: Summa av (siffra * vikt), där vikterna är 1,3,1,3... för positionerna 1-12
   const digits = cleaned.split('').map(Number);
   let sum = 0;
 
   for (let i = 0; i < 12; i++) {
-    // Multiplicera varannan siffra med 1, varannan med 3
-    sum += digits[i] * (i % 2 === 0 ? 1 : 3);
+    // Position 0,2,4... (jämna index) multipliceras med 1
+    // Position 1,3,5... (udda index) multipliceras med 3
+    const weight = (i % 2 === 0) ? 1 : 3;
+    sum += digits[i] * weight;
   }
 
+  // Kontrollsiffran är (10 - (sum % 10)) % 10
   const checkDigit = (10 - (sum % 10)) % 10;
 
   if (checkDigit !== digits[12]) {

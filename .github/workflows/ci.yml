@@ -7,6 +7,27 @@ on:
     branches: [main, develop]
 
 jobs:
+  # Parallella jobs för snabbare CI
+  lint:
+    name: Run Linter
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
   test:
     name: Run Tests
     runs-on: ubuntu-latest
@@ -29,9 +50,6 @@ jobs:
         env:
           DATABASE_URL: "file:./prisma/test.db"
 
-      - name: Run linter
-        run: npm run lint
-
       - name: Run tests
         run: npm test -- --coverage
         env:
@@ -45,10 +63,30 @@ jobs:
           name: codecov-umbrella
         if: always()
 
+  typecheck:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
   build:
     name: Build Application
     runs-on: ubuntu-latest
-    needs: test
+    needs: [lint, test, typecheck]  # Kör efter alla kvalitetskontroller
     
     steps:
       - name: Checkout code
